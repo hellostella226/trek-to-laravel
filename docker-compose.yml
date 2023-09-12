@@ -1,0 +1,32 @@
+version : '3.9'
+
+services :
+    app:
+      build:
+        args:
+          user: root
+          uid: 0
+        context: './'
+        dockerfile: Dockerfile
+      image: laravel-app
+      restart: unless-stopped
+      working_dir: /home/web/trek-to-laravel
+      volumes:
+        - ./:/home/web/trek-to-laravel
+      networks:
+        - mynetwork
+      environment:
+        TZ: "Asia/Seoul"
+    nginx:
+      image: nginx:alpine
+      restart: unless-stopped
+      ports:
+        - 8000:80
+      volumes:
+        - ./:/home/web/trek-to-laravel
+        - ./nginx/conf.d:/etc/nginx/conf.d/
+      networks:
+        - mynetwork
+networks:
+  mynetwork:
+    driver: bridge

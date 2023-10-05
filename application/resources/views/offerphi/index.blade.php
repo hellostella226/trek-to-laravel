@@ -54,7 +54,7 @@
                         @isset($response['data']['data'])
                             @foreach($response['data']['data'] as $key => $value)
                                 <tr>
-                                    <td><input type="checkbox"></td>
+                                    <td><input type="checkbox" name="data-select" data-value="{{ $value['GoodsManageIdx'] }}"></td>
                                     <td>{{ $value['RegDatetime'] }}</td>
                                     <td>{{ $value['GoodsManageIdx'] }}</td>
                                     <td>{{ $value['ServiceCompanyName'] }}</td>
@@ -87,6 +87,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        @csrf
                         <form>
                             <input type="hidden" name="goodsManageIdx" value="">
                             <input type="hidden" name="goodsManageType" value="">

@@ -23,7 +23,7 @@ Route::get('/', function () {
 });
 
 Route::resource('offerphi', OfferphiController::class)
-    ->only(['index'])
+    ->only(['index','store'])
     ->middleware(['auth','verified']);
 
 Auth::routes();

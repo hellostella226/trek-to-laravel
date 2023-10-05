@@ -15,24 +15,27 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <?php
     $dirs = explode('/', $_SERVER['REQUEST_URI']);
-    $group = $dirs[1];
-    $page = '';
+    $group = '';
+    $page = 'goods';
     $controller = new \App\Http\Controllers\Controller();
     if(count($dirs) > 2) {
         $page = $dirs[2];
     } else {
         foreach ($controller->navi as $key => $value) {
-            if($group === $key) {
+            if($dirs[1] === $key) {
+                $group = $key;
                 $page = $value[0]['id'];
                 break;
             }
         }
     } ?>
-    <!-- Scripts -->
+    <!-- 공통 CSS/Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js','resources/css/mig-bootstrap.css','resources/css/mig-index.css'])
-    <!-- 스크립트 메뉴에 따른 페이지 js -->
-    @vite(['resources/js/offerphi/'.$page.'.js'])
-    <!-- 스크립트 메뉴에 따른 페이지 js -->
+    @if($group)
+        <!-- 메뉴에 따른 js -->
+        @vite(['resources/js/'.$group.'/'.$page.'.js'])
+        <!-- 메뉴에 따른 js -->
+    @endif
 </head>
 <body>
     <div id="app">

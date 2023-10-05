@@ -1707,12 +1707,11 @@ class Admin extends Model
             if (!$this->conn) {
                 $this->conn = DB::connection()->getPdo();
             }
-            if (!isset($param['goodsManageType'], $param['serviceCompanyManageIdx'], $param['salesPrice'])) {
+            if (!isset($param['serviceCompanyManageIdx'], $param['salesPrice'])) {
                 throw new \Exception('필수 파라미터가 없습니다.', "404");
             }
             if (
-                !in_array($param['goodsManageType'], ['edit', 'register'])
-                || !preg_match($this->pattern['num'], $param['salesPrice'])
+                    !preg_match($this->pattern['num'], $param['salesPrice'])
                 || ($param['goodsName'] && !preg_match($this->pattern['all'], $param['goodsName']))
             ) {
                 throw new \Exception('파라미터가 올바르지 않습니다.', "400");
@@ -1730,7 +1729,7 @@ class Admin extends Model
                 throw new \Exception('필수 파라미터가 올바르지 않습니다.', "400");
             }
 
-            if ($param['goodsManageType'] === 'register') {
+            if (!isset($param['goodsManageIdx'])) {
                 // GoodsManage
                 $table = "phi.GoodsManage";
                 $item = [
@@ -1742,12 +1741,7 @@ class Admin extends Model
                 $this->data['goodsManageIdx'] = $this->insertUpdate([], $table, $item);
 
                 $this->msg = "goodsManageIdx 등록완료";
-            }
-            if ($param['goodsManageType'] === 'edit') {
-                if (!isset($param['goodsManageIdx'])) {
-                    throw new \Exception('필수 파라미터가 없습니다.', "404");
-                }
-
+            } else {
                 // 해당 goodsManageIdx 정보 조회
                 $sql = "SELECT GoodsManageIdx
                           FROM phi.GoodsManage

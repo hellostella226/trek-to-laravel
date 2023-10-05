@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\Offerphi;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,22 +20,17 @@ class OfferphiController extends Controller
      */
     public function index()
     {
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            /*return view('offerphi.index',['data' => $row, 'id' => 'offerphi']);*/
+        if(isset($this->param['purpose'])) {
+            //router destination부터 할 차례!!
+            $page = '';
+            //메뉴쪽으로 구성해야 함
+            $this->search($page, $this->param);
+/*            $data = (new \App\Models\Offerphi)->goodsList($this->param);
+            echo json_encode($data);*/
+            exit;
+        } else {
             $data = (new \App\Models\Offerphi)->goodsList($this->param);
-        } else if($_SERVER['REQUEST_METHOD'] === 'GET') {
-            if(isset($this->param['purpose'])) {
-                //router destination부터 할 차례!!
-                $page = '';
-                //메뉴쪽으로 구성해야 함
-                $this->search($page, $this->param);
-                $data = (new \App\Models\Offerphi)->goodsList($this->param);
-                echo json_encode($data);
-                exit;
-            } else {
-                $data = (new \App\Models\Offerphi)->goodsList($this->param);
-                return view('offerphi.index', ['response'=>$data]);
-            }
+            return view('offerphi.index', ['response'=>$data]);
         }
         // 변수에 할당하는 역할 기재
     }
@@ -52,7 +48,72 @@ class OfferphiController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $param = $this->getParam();
+            $admin = new Admin();
+
+            switch ($request['purpose']) {
+                case 'excelFileDown' :
+                    parent::excelFileDown($param);
+                    break;
+                case 'updateClientData' :
+                    $response = $this->updateClientData($param);
+                    break;
+                case 'updateFreeTicket' :
+                    $response = $this->updateFreeTicket($param);
+                    break;
+                case 'registConsultant':
+                    $response = $this->registConsultant($param);
+                    break;
+                case 'updateIsActiveClient' :
+                    $response = $this->updateIsActiveClient($param);
+                    break;
+                case 'uploadOfferCompanyDb':
+                    $response = $this->uploadOfferCompanyDb($param);
+                    break;
+                case 'getPhiReport':
+                    parent::getPhiReport($param);
+                    break;
+                case 'registGoods':
+                    $response = $this->registGoods($param);
+                    break;
+                case 'deleteGoods':
+                    $response = $this->deleteGoods($param);
+                    break;
+                case 'couponRegist' :
+                    $response = $this->couponRegist($param);
+                    break;
+                case 'refundPayment' :
+                    $response = $this->refundPayment($param);
+                    $this->sendRefundSms($response['data']);
+                    break;
+                default :
+                    $response = [
+                        'data' => [],
+                        'code' => '',
+                        'msg' => 'require develop..',
+                        'desc' => '',
+                    ];
+                    break;
+            }
+            if (count($response) > 0) {
+                foreach ($response as $key => $val) {
+                    $this->$key = $val;
+                }
+            }
+            $this->data = $response['data'];
+            $this->msg = $response['msg'];
+            $this->code = $response['code'];
+            $this->desc = $response['desc'];
+        } catch (\Exception $e) {
+            $this->msg = $e->getMessage();
+            $this->code = $e->getCode();
+            $this->desc = 'Error';
+            parent::errorLog($e);
+        } finally {
+            echo parent::jsonResponse();
+            exit;
+        }
     }
 
     /**
@@ -60,6 +121,10 @@ class OfferphiController extends Controller
      */
     public function show(Offerphi $offerphi)
     {
+        $param = $this->getParam();
+        print_r($param);
+        return view('offerphi.show', ['response'=>$param]);
+        exit;
         //
     }
 
